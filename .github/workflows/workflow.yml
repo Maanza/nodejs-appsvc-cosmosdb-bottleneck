@@ -9,14 +9,14 @@ on:
         - main
 
 env:
-  AZURE_WEBAPP_NAME: "loadtestning"    # set this to your application's name
-  LOAD_TEST_RESOURCE: "load"
+  AZURE_WEBAPP_NAME: "loadtestman"    # set this to your application's name
+  LOAD_TEST_RESOURCE: "loadtestningman"
   LOAD_TEST_RESOURCE_GROUP: "load-test"
   AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
   NODE_VERSION: '14.15.1'                # set this to the node version to use
-  LOCATION: "Sweden central"
-  APPINSIGHTLOCATION: "Sweden central"
-  DATABASEACCOUNTLOCATION: "Sweden central"
+  LOCATION: "East US"
+  APPINSIGHTLOCATION: "East US"
+  DATABASEACCOUNTLOCATION: "eastus"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -42,14 +42,14 @@ jobs:
         continue-on-error: false
         with:
           inlineScript: |
-            az group create --name "${{ env.AZURE_WEBAPP_NAME }}swedencentral-rg" --location "${{ env.LOCATION }}"
-            $deploymentOutputs = az deployment group create --resource-group "${{ env.AZURE_WEBAPP_NAME }}-rg" --mode Incremental --template-file ./windows-webapp-template.json --parameters webAppName="${{ env.AZURE_WEBAPP_NAME }}" --parameters hostingPlanName="${{ env.AZURE_WEBAPP_NAME }}-host" --parameters appInsightsLocation="${{ env.APPINSIGHTLOCATION }}" --parameters databaseAccountId="${{ env.AZURE_WEBAPP_NAME }}db" --parameters databaseAccountLocation="${{ env.DATABASEACCOUNTLOCATION }}" -o json
+            az group create --name "${{ env.AZURE_WEBAPP_NAME }}eastus-rg" --location "${{ env.LOCATION }}"
+            $deploymentOutputs = az deployment group create --resource-group "${{ env.AZURE_WEBAPP_NAME }}eastus-rg" --mode Incremental --template-file ./windows-webapp-template.json --parameters webAppName="${{ env.AZURE_WEBAPP_NAME }}" --parameters hostingPlanName="${{ env.AZURE_WEBAPP_NAME }}-host" --parameters appInsightsLocation="${{ env.APPINSIGHTLOCATION }}" --parameters databaseAccountId="${{ env.AZURE_WEBAPP_NAME }}db" --parameters databaseAccountLocation="${{ env.DATABASEACCOUNTLOCATION }}" -o json
             $deploymentOutputs = $deploymentOutputs | ConvertFrom-Json
             $connectionString = [String]$deploymentOutputs.properties.outputs.azureCosmosDBAccountKeys.value
-            $setConnectionString = az webapp config appsettings set --name "${{ env.AZURE_WEBAPP_NAME }}" --resource-group "${{ env.AZURE_WEBAPP_NAME }}-rg" --settings CONNECTION_STRING="$connectionString"
-            $setAppSettings = az webapp config appsettings set --name "${{ env.AZURE_WEBAPP_NAME }}" --resource-group "${{ env.AZURE_WEBAPP_NAME }}-rg" --settings MSDEPLOY_RENAME_LOCKED_FILES=1
-            $setAppSettings = az webapp config appsettings set --name "${{ env.AZURE_WEBAPP_NAME }}" --resource-group "${{ env.AZURE_WEBAPP_NAME }}-rg" --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true
-            $setAppSettings = az webapp config appsettings set --name "${{ env.AZURE_WEBAPP_NAME }}" --resource-group "${{ env.AZURE_WEBAPP_NAME }}-rg" --settings HEADER_VALUE="${{ secrets.MY_SECRET }}"
+            $setConnectionString = az webapp config appsettings set --name "${{ env.AZURE_WEBAPP_NAME }}" --resource-group "${{ env.AZURE_WEBAPP_NAME }}eastus-rg" --settings CONNECTION_STRING="$connectionString"
+            $setAppSettings = az webapp config appsettings set --name "${{ env.AZURE_WEBAPP_NAME }}" --resource-group "${{ env.AZURE_WEBAPP_NAME }}eastus-rg" --settings MSDEPLOY_RENAME_LOCKED_FILES=1
+            $setAppSettings = az webapp config appsettings set --name "${{ env.AZURE_WEBAPP_NAME }}" --resource-group "${{ env.AZURE_WEBAPP_NAME }}eastus-rg" --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true
+            $setAppSettings = az webapp config appsettings set --name "${{ env.AZURE_WEBAPP_NAME }}" --resource-group "${{ env.AZURE_WEBAPP_NAME }}eastus-rg" --settings HEADER_VALUE="${{ secrets.MY_SECRET }}"
           azPSVersion: "latest"
           
       - name: 'Deploy to Azure WebApp'
